@@ -1,0 +1,43 @@
+## CONTACT 
+PROFILE
+Here's a professional summary of the provided content, adapted for a resume or HR context:
+
+**Summary: Aspiring Python Developer**
+
+A highly motivated and currently graduating individual with a strong interest in Python development. Possesses a solid foundation in data structures, problem-solving techniques, and basic programming, demonstrated through the successful completion of both personal and academic Python projects. Eager to
+
+## SKILLS 
+ADDITIONAL
+
+
+## PROJECTS
+This section highlights a candidate's proficiency in various programming languages and development methodologies, demonstrated through several completed projects.
+
+**Key Skills:**
+*   **Programming Languages:** Java, Python, HTML, CSS,
+
+## INTEREST
+This section outlines the individual's core competencies and professional certifications.
+
+**Key Points:**
+
+*   **Skills:**
+    *   Digital Marketing
+    *   Filmography
+    *   Drawing/Sketching
+*   **Certifications:**
+    *   Udemy certified Python Programmer
+    *   UI/UX Design Workshop (2 days) attended at RTech Private Solutions, with certificate.
+    *   NPTEL certification for Programming in Java.
+
+## HOBBIES
+
+
+## LANGUAGES 
+ INTERNSHIPS
+This section highlights a candidate's recent professional experience and language proficiencies.
+
+**Key Points:**
+
+*   **Professional Experience:** Completed a 1-month paid internship in Java Programming at Emglitz Technologies.
+*   **Language Skills:** Proficient in English and Tamil.

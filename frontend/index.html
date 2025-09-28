@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KMRL DocuSum Auth</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (Modern replacement for Feather) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+      // Configure Tailwind with custom colors and font
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              primary: "#6366f1", // Indigo
+              secondary: "#8b5cf6", // Violet
+              background: "#f8fafc", // Slate 50
+              card: "#ffffff",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s ease-in-out;
+        background-image: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #6366f1;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background-color: #e0e7ff;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+      .file-input-label {
+        cursor: pointer;
+        border: 2px dashed #cbd5e1;
+        transition: all 0.2s ease;
+      }
+      .file-input-label:hover {
+        border-color: #6366f1;
+        background-color: #eef2ff;
+      }
+    </style>
+  </head>
+  <body class="min-h-full antialiased">
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+      const SERVER_BASE_URL = "http://localhost:8000";
+      const { useState, useEffect, useCallback, useMemo } = React;
+      const root = ReactDOM.createRoot(document.getElementById("root")); // Updated to React 18 API
+
+      const NODE_API = "http://localhost:9000/api";
+      const FASTAPI_API = "http://localhost:8000"; // Target for document upload
+
+      // Icon component using Lucide
+      const Icon = ({ name, className = "w-5 h-5" }) => {
+        // Safely render Lucide icon SVG
+        const iconHtml = lucide.icons[name]
+          ? lucide.icons[name].toSvg({ class: className })
+          : "";
+        return <div dangerouslySetInnerHTML={{ __html: iconHtml }} />;
+      };
+
+      // --- Auth Context and Hooks ---
+      const AuthContext = React.createContext();
+
+      const useAuth = () => React.useContext(AuthContext);
+
+      const AuthProvider = ({ children }) => {
+        const [currentUser, setCurrentUser] = useState(null);
+        const [page, setPage] = useState("login"); // 'login', 'dashboard', 'docDetails'
+        const [loginError, setLoginError] = useState("");
+        const [isLoading, setIsLoading] = useState(false);
+
+        const login = useCallback(async (email, password) => {
+          setIsLoading(true);
+          setLoginError("");
+          try {
+            const res = await fetch(`${NODE_API}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              setCurrentUser(data.user);
+              setPage("dashboard");
+            } else {
+              setLoginError(data.error || "Login failed. Check credentials.");
+            }
+          } catch (e) {
+            setLoginError(
+              "Network error. Could not connect to the Node.js server (Port 9000)."
+            );
+          } finally {
+            setIsLoading(false);
+          }
+        }, []);
+
+        // NOTE: RegisterForm logic assumes the Node.js schema now includes 'designation'.
+        const register = useCallback(
+          async (email, password, role, designation) => {
+            // This is stubbed; RegisterForm handles its own state for simplicity
+            console.log("Attempting registration...");
+          },
+          []
+        );
+
+        const logout = useCallback(() => {
+          setCurrentUser(null);
+          setPage("login");
+          setLoginError("");
+        }, []);
+
+        const value = useMemo(
+          () => ({
+            currentUser,
+            page,
+            setPage,
+            login,
+            logout,
+            loginError,
+            isLoading,
+          }),
+          [currentUser, page, login, logout, loginError, isLoading]
+        );
+
+        return (
+          <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+        );
+      };
+
+      // --- Auth Forms ---
+      const RegisterForm = ({ onToggleView }) => {
+        const [email, setEmail] = useState("");
+        const [password, setPassword] = useState("");
+        const [role, setRole] = useState("employee");
+        const [designation, setDesignation] = useState("");
+        const [regStatus, setRegStatus] = useState({ message: "", type: "" });
+        const [isRegistering, setIsRegistering] = useState(false);
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          setRegStatus({ message: "", type: "" });
+          setIsRegistering(true);
+
+          try {
+            const res = await fetch(`${NODE_API}/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password, role, designation }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+              setRegStatus({
+                message: "Registration successful! You can now log in.",
+                type: "success",
+              });
+              setEmail("");
+              setPassword("");
+              setDesignation("");
+              setTimeout(() => onToggleView("login"), 2000);
+            } else {
+              setRegStatus({
+                message: data.error || "Registration failed.",
+                type: "error",
+              });
+            }
+          } catch (e) {
+            setRegStatus({
+              message: "Network error. Could not connect to the server.",
+              type: "error",
+            });
+          } finally {
+            setIsRegistering(false);
+          }
+        };
+
+        const statusClasses =
+          regStatus.type === "error"
+            ? "text-red-600 bg-red-50 border-red-200"
+            : regStatus.type === "success"
+            ? "text-green-600 bg-green-50 border-green-200"
+            : "hidden";
+
+        return (
+          <div className="w-full max-w-lg p-8 space-y-6 bg-card rounded-2xl shadow-2xl transition-all duration-300">
+            <h2 className="text-3xl font-extrabold text-gray-900 text-center">
+              KMRL User Registration
+            </h2>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="reg-email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <input
+                  id="reg-email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                  placeholder="your.email@kmrl.com"
+                />
+              </div>
+              {/* Password */}
+              <div>
+                <label
+                  htmlFor="reg-password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <input
+                  id="reg-password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                  placeholder="••••••••"
+                />
+              </div>
+              {/* Designation */}
+              <div>
+                <label
+                  htmlFor="reg-designation"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Designation
+                </label>
+                <input
+                  id="reg-designation"
+                  type="text"
+                  required
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                  placeholder="e.g., Senior Analyst, HR Manager"
+                />
+              </div>
+              {/* Role Selector */}
+              <div>
+                <label
+                  htmlFor="reg-role"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Role
+                </label>
+                <select
+                  id="reg-role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150 bg-white"
+                >
+                  <option value="employee">Employee</option>
+                  <option value="hr">HR</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  Admins/HR have document ingestion access.
+                </p>
+              </div>
+
+              {regStatus.message && (
+                <div
+                  className={`text-sm font-medium p-3 rounded-lg border ${statusClasses}`}
+                >
+                  {regStatus.message}
+                </div>
+              )}
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={isRegistering}
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white bg-green-500 hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                >
+                  {isRegistering ? (
+                    <>
+                      <Icon
+                        name="loader"
+                        className="w-4 h-4 mr-2 animate-spin"
+                      />
+                      Registering...
+                    </>
+                  ) : (
+                    "Register New Account"
+                  )}
+                </button>
+              </div>
+            </form>
+            <div className="text-center">
+              <button
+                onClick={() => onToggleView("login")}
+                className="text-sm font-medium text-primary hover:text-secondary transition duration-150"
+              >
+                Already have an account? Sign In
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      const LoginForm = ({ onToggleView }) => {
+        const { login, loginError, isLoading } = useAuth();
+        const [email, setEmail] = useState("");
+        const [password, setPassword] = useState("");
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          login(email, password);
+        };
+
+        return (
+          <div className="w-full max-w-lg p-8 space-y-6 bg-card rounded-2xl shadow-2xl transition-all duration-300">
+            <h2 className="text-3xl font-extrabold text-gray-900 text-center">
+              KMRL DocuSum Login
+            </h2>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="appearance-none block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                    placeholder="your.email@kmrl.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="appearance-none block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              {loginError && (
+                <div className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
+                  {loginError}
+                </div>
+              )}
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white bg-primary hover:bg-secondary transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+                >
+                  {isLoading ? "Logging In..." : "Sign In"}
+                </button>
+              </div>
+            </form>
+            <div className="text-center">
+              <button
+                onClick={() => onToggleView("register")}
+                className="text-sm font-medium text-green-600 hover:text-green-700 transition duration-150"
+              >
+                Need an account? Register Here
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      // --- Document Components ---
+
+      // Custom Confirmation Modal (used for deletion)
+      const ConfirmationModal = ({
+        title,
+        message,
+        onConfirm,
+        onCancel,
+        isProcessing,
+      }) => (
+        <div
+          className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={onCancel}
+        >
+          <div
+            className="bg-card rounded-2xl p-8 w-full max-w-md shadow-2xl space-y-6 transform transition-all duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold text-red-600 flex items-center border-b pb-3">
+              <Icon name="alert-triangle" className="w-6 h-6 mr-2" />
+              {title}
+            </h3>
+            <p className="text-gray-700">{message}</p>
+            <div className="flex justify-end space-x-3 pt-2">
+              <button
+                onClick={onCancel}
+                disabled={isProcessing}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-150 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={isProcessing}
+                className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg shadow-lg hover:bg-red-700 transition duration-300 ease-in-out disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <>
+                    <Icon name="loader" className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="trash" className="w-4 h-4 mr-1" />
+                    Delete Permanently
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+
+      const DocumentCard = ({ doc, onSelect }) => (
+        <div
+          className="p-4 bg-card rounded-xl shadow-md hover:shadow-lg transition duration-300 cursor-pointer border border-gray-100 hover:border-primary/50"
+          onClick={() => onSelect(doc)}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 truncate mb-2">
+            {doc.title}
+          </h3>
+          <div className="flex items-center text-sm text-gray-500 space-x-4">
+            <div className="flex items-center">
+              <Icon name="user" className="w-4 h-4 mr-1 text-primary" />
+              <span>{doc.uploadedBy.split("@")[0]}</span>
+            </div>
+            <div className="flex items-center">
+              <Icon name="file" className="w-4 h-4 mr-1 text-gray-400" />
+              <span className="truncate max-w-[150px]">
+                {doc.filename || doc.url || "No filename"}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <Icon name="calendar" className="w-4 h-4 mr-1 text-gray-400" />
+              <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      const DocumentDetails = ({ doc, onBack, onDocumentDeleted }) => {
+        const { currentUser, setPage } = useAuth();
+        const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+        const [isDeleting, setIsDeleting] = useState(false);
+        const isAdminOrHr =
+          currentUser?.role === "admin" || currentUser?.role === "hr";
+
+        if (!doc) return null;
+
+        const handleDeleteConfirmed = async () => {
+          setIsDeleting(true);
+          try {
+            const res = await fetch(`${NODE_API}/documents/${doc._id}`, {
+              method: "DELETE",
+            });
+
+            if (res.ok) {
+              // Success: Go back to dashboard and refresh the list
+              onDocumentDeleted();
+              setPage("dashboard");
+            } else {
+              const errorData = await res.json();
+              // This should ideally be handled by a transient message box, but for now, console log and close modal
+              console.error(
+                "Failed to delete document:",
+                errorData.error || "Unknown error"
+              );
+              setIsConfirmingDelete(false);
+            }
+          } catch (e) {
+            console.error("Network error during deletion:", e);
+            setIsConfirmingDelete(false);
+          } finally {
+            setIsDeleting(false);
+          }
+        };
+
+        return (
+          <div className="min-h-screen p-8 flex justify-center">
+            <div className="bg-card rounded-2xl shadow-2xl space-y-6 w-full max-w-4xl p-8">
+              {" "}
+              {/* Added p-8 padding here */}
+              {/* Header with Back and Delete Button */}
+              <div className="flex justify-between items-start border-b pb-4 mb-4">
+                <button
+                  onClick={onBack}
+                  className="flex items-center text-primary hover:text-secondary transition duration-200 font-medium p-2 rounded-lg hover:bg-gray-50"
+                >
+                  <Icon name="arrow-left" className="w-5 h-5 mr-2" />
+                  Back to Dashboard
+                </button>
+
+                {isAdminOrHr && (
+                  <button
+                    onClick={() => setIsConfirmingDelete(true)}
+                    className="flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+                  >
+                    <Icon name="trash" className="w-4 h-4 mr-2" />
+                    Delete Document
+                  </button>
+                )}
+              </div>
+              <h1 className="text-4xl font-extrabold text-gray-900">
+                {doc.title}
+              </h1>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 border-b pb-4">
+                <p>
+                  <strong className="font-semibold text-gray-900">
+                    Uploader:
+                  </strong>{" "}
+                  {doc.uploadedBy}
+                </p>
+                <p>
+                  <strong className="font-semibold text-gray-900">
+                    File Name:
+                  </strong>{" "}
+                  <span className="text-base font-medium text-gray-800">
+                    {doc.filename || "N/A"}
+                  </span>
+                </p>
+                <p>
+                  <strong className="font-semibold text-gray-900">
+                    Uploaded At:
+                  </strong>{" "}
+                  {new Date(doc.uploadedAt).toLocaleString()}
+                </p>
+                <p>
+                  <strong className="font-semibold text-gray-900">
+                    Database ID:
+                  </strong>{" "}
+                  <span className="font-mono text-xs bg-gray-100 p-1 rounded">
+                    {doc._id}
+                  </span>
+                </p>
+              </div>
+              <div className="mt-6">
+                <h2 className="text-2xl font-bold text-primary mb-3 flex items-center">
+                  <Icon name="book-open" className="w-6 h-6 mr-2" />
+                  Generated Summary
+                </h2>
+                <div className="p-6 bg-primary/5 rounded-xl border border-primary/20 whitespace-pre-wrap leading-relaxed custom-scrollbar max-h-[70vh] overflow-y-auto shadow-inner">
+                  {doc.summary ? (
+                    // Primary Summary Content
+                    doc.summary
+                  ) : (
+                    // Targeted Failure Message for Missing Summary
+                    <div className="text-red-600 font-semibold text-center py-6 bg-red-50 rounded-lg">
+                      <Icon
+                        name="alert-triangle"
+                        className="w-6 h-6 mx-auto mb-2"
+                      />
+                      <p>Summary is missing for this document record.</p>
+                      <p className="text-sm font-normal mt-1">
+                        This usually indicates a failure in the FastAPI
+                        summarization step (Port 8000) or during the subsequent
+                        database save (Port 9000).
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {isConfirmingDelete && (
+              <ConfirmationModal
+                title="Confirm Document Deletion"
+                message={`Are you sure you want to permanently delete the document record: "${doc.title}"? This action cannot be undone.`}
+                onConfirm={handleDeleteConfirmed}
+                onCancel={() => setIsConfirmingDelete(false)}
+                isProcessing={isDeleting}
+              />
+            )}
+          </div>
+        );
+      };
+
+      // --- Document Ingestion Component (Modal) ---
+      const DocumentIngestionForm = ({ onClose, onSuccess }) => {
+        const { currentUser } = useAuth();
+        const [file, setFile] = useState(null);
+        const [title, setTitle] = useState("");
+        const [status, setStatus] = useState({ message: "", type: "" });
+        const [isProcessing, setIsProcessing] = useState(false);
+
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          setStatus({ message: "", type: "" });
+
+          if (!file || !title) {
+            setStatus({
+              message: "Title and document file are required.",
+              type: "error",
+            });
+            return;
+          }
+
+          setIsProcessing(true);
+          setStatus({
+            message:
+              "Step 1 of 2: Uploading file and requesting summarization from Python server (Port 8000)...",
+            type: "info",
+          });
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          let summaryText = ""; // Variable to hold the final summary
+
+          try {
+            // REAL FastAPI call
+            const fastApiRes = await fetch(`${FASTAPI_API}/upload/`, {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!fastApiRes.ok) {
+              const errorData = await fastApiRes.json();
+              throw new Error(errorData.error || "FastAPI processing failed.");
+            }
+
+            const fastApiData = await fastApiRes.json();
+            // **FIX: Use a defensive assignment to handle potential key mismatches**
+            if (fastApiData.summary) {
+              summaryText = fastApiData.summary;
+            } else if (fastApiData.summary_content) {
+              // Check for common alternative key if 'summary' is missing
+              summaryText = fastApiData.summary_content;
+            } else {
+              // If neither is found, log a warning and let summaryText remain empty (or undefined)
+              console.warn(
+                "FastAPI response did not contain 'summary' or 'summary_content' key."
+              );
+            }
+
+            setStatus({
+              message:
+                "Step 2 of 2: Saving document record to MongoDB (Port 9000)...",
+              type: "info",
+            });
+
+            const docData = {
+              title: title,
+              filename: file.name,
+              summary: summaryText, // Now this variable holds the actual summary text!
+              uploadedBy: currentUser.email,
+              uploadedAt: new Date().toISOString(),
+            };
+
+            const saveRes = await fetch(`${NODE_API}/documents`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(docData),
+            });
+
+            if (saveRes.ok) {
+              setStatus({
+                message:
+                  "Document summarized and saved successfully! Refreshing dashboard...",
+                type: "success",
+              });
+              onSuccess(); // Refresh dashboard list
+              setTimeout(onClose, 1500);
+            } else {
+              const errorData = await saveRes.json();
+              setStatus({
+                message:
+                  errorData.error ||
+                  "Failed to save document record to database.",
+                type: "error",
+              });
+            }
+          } catch (e) {
+            setStatus({
+              message: `An error occurred during processing: ${e.message}. Check both server consoles.`,
+              type: "error",
+            });
+          } finally {
+            setIsProcessing(false);
+          }
+        };
+
+        const statusClasses =
+          status.type === "error"
+            ? "bg-red-50 text-red-600 border-red-200"
+            : status.type === "success"
+            ? "bg-green-50 text-green-600 border-green-200"
+            : status.type === "info"
+            ? "bg-blue-50 text-blue-600 border-blue-200"
+            : "hidden";
+
+        return (
+          <div
+            className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4"
+            onClick={onClose}
+          >
+            <div
+              className="bg-card rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6 transform transition-all duration-300 scale-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <Icon
+                    name="upload-cloud"
+                    className="w-6 h-6 mr-2 text-primary"
+                  />
+                  Ingest New Document (File Upload)
+                </h3>
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-gray-600 transition p-1 rounded-full hover:bg-gray-100"
+                >
+                  <Icon name="x" className="w-6 h-6" />
+                </button>
+              </div>
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Document Title
+                  </label>
+                  <input
+                    id="title"
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary transition duration-150"
+                    placeholder="e.g., Q3 Financial Report 2024"
+                  />
+                </div>
+
+                {/* File Upload Input */}
+                <div>
+                  <label
+                    htmlFor="file-upload"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Select Document (PDF/DOCX/TXT)
+                  </label>
+                  <label
+                    htmlFor="file-upload"
+                    className="file-input-label block w-full p-6 text-center rounded-lg text-gray-500 transition duration-150"
+                  >
+                    <input
+                      id="file-upload"
+                      type="file"
+                      required
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="hidden"
+                      accept=".pdf,.docx,.txt"
+                    />
+                    <Icon
+                      name="file-up"
+                      className="w-8 h-8 mx-auto text-primary mb-2"
+                    />
+                    {file ? (
+                      <span className="font-semibold text-gray-800 block truncate">
+                        {file.name}
+                      </span>
+                    ) : (
+                      <span>Click to browse or drag and drop a file</span>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Max size 10MB.</p>
+                  </label>
+                </div>
+
+                {status.message && (
+                  <div
+                    className={`text-sm font-medium p-3 rounded-lg border ${statusClasses} flex items-center`}
+                  >
+                    {status.type === "info" && (
+                      <Icon name="info" className="w-4 h-4 mr-2" />
+                    )}
+                    {status.type === "error" && (
+                      <Icon name="alert-triangle" className="w-4 h-4 mr-2" />
+                    )}
+                    {status.type === "success" && (
+                      <Icon name="check-circle" className="w-4 h-4 mr-2" />
+                    )}
+                    {status.message}
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-150 disabled:opacity-50"
+                    disabled={isProcessing}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isProcessing || !file}
+                    className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg shadow-lg hover:bg-secondary transition duration-300 ease-in-out disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Icon
+                          name="loader"
+                          className="w-4 h-4 mr-2 animate-spin"
+                        />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="zap" className="w-4 h-4 mr-1" />
+                        Upload & Summarize
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+              <p className="mt-1 text-xs text-gray-500 text-center">
+                Note: Requires **FastAPI on 8000** and **Node.js on 9000** to be
+                running
+              </p>
+            </div>
+          </div>
+        );
+      };
+
+      // --- Summary Card Component (Crucial Fix Applied Here) ---
+      const SummaryCard = ({ summary, onClick, className = "" }) => {
+        // Check for summary text presence and safely apply substring
+        const rawSummary = summary?.summary || "";
+        const previewText = rawSummary
+          ? rawSummary.substring(0, 150) +
+            (rawSummary.length > 150 ? "..." : "")
+          : "No summary preview available.";
+
+        return (
+          <div
+            className={`p-6 bg-primary/5 border border-primary/20 rounded-2xl shadow-xl transition-all duration-300 cursor-pointer hover:shadow-2xl hover:border-primary ${className}`}
+            onClick={() => onClick(summary)}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-bold text-primary flex items-center">
+                <Icon name="file-text" className="w-6 h-6 mr-2" />
+                Latest Document: {summary.title}
+              </h2>
+              <span
+                className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                  summary.summary
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {summary.summary ? "Summarized" : "Pending/Failed"}
+              </span>
+            </div>
+
+            <p className="text-gray-700 mt-2 line-clamp-3 leading-relaxed">
+              {previewText}
+            </p>
+
+            <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center text-sm text-gray-500">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center">
+                  <Icon name="user" className="w-4 h-4 mr-1" />
+                  <span>{summary.uploadedBy.split("@")[0]}</span>
+                </div>
+                <div className="flex items-center">
+                  <Icon name="calendar" className="w-4 h-4 mr-1" />
+                  <span>
+                    {new Date(summary.uploadedAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+              <button className="text-primary hover:text-secondary flex items-center font-medium">
+                View Details
+                <Icon name="chevron-right" className="w-4 h-4 ml-1" />
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      // --- Dashboard Component ---
+      const Dashboard = () => {
+        // FIX 1: Add filterText state, as setFilterText is used in loadDocuments
+        const [filterText, setFilterText] = useState(""); // FIX 2: Added 'page' to destructuring list
+        const { currentUser, setPage, logout, page } = useAuth();
+        const [documents, setDocuments] = useState([]);
+        const [selectedDoc, setSelectedDoc] = useState(null);
+        const [isModalOpen, setIsModalOpen] = useState(false);
+        const [isDocsLoading, setIsDocsLoading] = useState(true); // FIX 3: Wrap loadDocuments in useCallback to stabilize the function reference. // State setters (setDocuments, setIsDocsLoading, setFilterText) are guaranteed to be stable, // but included for linter compliance.
+
+        const loadDocuments = useCallback(async () => {
+          setIsDocsLoading(true);
+          try {
+            const response = await fetch(`${SERVER_BASE_URL}/api/documents`);
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setDocuments(data);
+            setFilterText("");
+          } catch (error) {
+            console.error("Error loading documents:", error);
+            setDocuments([]);
+          } finally {
+            setIsDocsLoading(false);
+          }
+        }, [setDocuments, setIsDocsLoading, setFilterText]); // Dependencies for useCallback
+
+        useEffect(() => {
+          if (currentUser) {
+            loadDocuments();
+          }
+        }, [currentUser, loadDocuments]); // Now [loadDocuments] is stable.
+
+        const selectDoc = (doc) => {
+          setSelectedDoc(doc);
+          setPage("docDetails");
+        };
+
+        const latestSummary = useMemo(() => {
+          if (documents.length === 0) return null;
+          // documents are already sorted by uploadedAt DESC by the API
+          return documents[0];
+        }, [documents]);
+
+        const totalDocs = documents.length;
+        const totalSummarized = documents.filter((d) => d.summary).length;
+        const avgSummaryLength =
+          documents.length > 0
+            ? Math.round(
+                documents.reduce(
+                  (acc, d) => acc + (d.summary?.length || 0),
+                  0
+                ) / documents.length
+              )
+            : 0;
+
+        if (selectedDoc && page === "docDetails") {
+          // Pass loadDocuments to DocumentDetails so it can refresh the list after deletion
+          return (
+            <DocumentDetails
+              doc={selectedDoc}
+              onBack={() => setPage("dashboard")}
+              onDocumentDeleted={loadDocuments}
+            />
+          );
+        }
+
+        // Helper for Analytic Items
+        const AnalyticItem = ({ icon, label, value, color }) => (
+          <div className="flex items-center p-4 bg-card rounded-xl shadow-md border border-gray-100">
+            <div
+              className={`p-3 rounded-xl mr-4 text-white flex items-center justify-center ${color}`}
+            >
+              <Icon name={icon} className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 font-medium">{label}</p>
+              <p className="text-2xl font-extrabold text-gray-900">{value}</p>
+            </div>
+          </div>
+        );
+
+        return (
+          <main className="min-h-screen p-8">
+            <header className="flex justify-between items-center mb-10 pb-4 border-b border-gray-200">
+              <h1 className="text-4xl font-extrabold text-gray-900 flex items-center">
+                <Icon
+                  name="layout-dashboard"
+                  className="w-8 h-8 mr-3 text-primary"
+                />
+                KMRL Document Dashboard
+              </h1>
+              <div className="flex items-center space-x-4">
+                <span className="text-lg font-medium text-gray-600">
+                  Welcome,{" "}
+                  <span className="text-primary">
+                    {currentUser?.email.split("@")[0]}
+                  </span>
+                  (
+                  <span className="capitalize text-secondary">
+                    {currentUser?.role}
+                  </span>
+                  )
+                </span>
+                <button
+                  onClick={logout}
+                  className="flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg shadow-md hover:bg-red-600 transition duration-200"
+                >
+                  <Icon name="log-out" className="w-4 h-4 mr-2" />
+                  Logout
+                </button>
+              </div>
+            </header>
+
+            {/* Controls and Stats */}
+            <div className="mb-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Analytic Items */}
+              <AnalyticItem
+                icon="folder"
+                label="Total Documents"
+                value={totalDocs}
+                color="bg-primary"
+              />
+              <AnalyticItem
+                icon="check-circle"
+                label="Total Summarized"
+                value={totalSummarized}
+                color="bg-green-500"
+              />
+              <AnalyticItem
+                icon="message-square"
+                label="Avg Summary Length"
+                value={`${avgSummaryLength} Chars`}
+                color="bg-yellow-500"
+              />
+              <AnalyticItem
+                icon="clock"
+                label="User Role"
+                value={currentUser?.role.toUpperCase()}
+                color="bg-secondary"
+              />
+
+              {/* Ingestion Button */}
+              {(currentUser?.role === "admin" ||
+                currentUser?.role === "hr") && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="md:col-span-4 lg:col-span-1 flex items-center justify-center py-4 px-6 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-green-300"
+                >
+                  <Icon name="plus-circle" className="w-6 h-6 mr-2" />
+                  Ingest New Document
+                </button>
+              )}
+            </div>
+
+            {/* Latest Document and Document List */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Latest Summary Card (Fixed for Null Check) */}
+              <div className="lg:col-span-2">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  Latest Summary
+                </h2>
+                {isDocsLoading ? (
+                  <div className="p-8 text-center bg-card rounded-xl shadow-md">
+                    <Icon
+                      name="loader"
+                      className="w-8 h-8 mx-auto text-primary animate-spin"
+                    />
+                    <p className="mt-3 text-gray-600">Loading documents...</p>
+                  </div>
+                ) : latestSummary ? (
+                  <SummaryCard summary={latestSummary} onClick={selectDoc} />
+                ) : (
+                  <div className="p-8 text-center bg-card rounded-xl shadow-md border border-dashed border-gray-300">
+                    <Icon
+                      name="alert-triangle"
+                      className="w-8 h-8 mx-auto text-yellow-500"
+                    />
+                    <p className="mt-3 text-gray-600 font-medium">
+                      No documents have been ingested yet.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Document List */}
+              <div className="lg:col-span-1">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  All Documents ({totalDocs})
+                </h2>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+                  {isDocsLoading ? (
+                    <p className="text-gray-500">Loading list...</p>
+                  ) : documents.length > 0 ? (
+                    documents.map((doc) => (
+                      <DocumentCard
+                        key={doc._id}
+                        doc={doc}
+                        onSelect={selectDoc}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No documents found.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {isModalOpen && (
+              <DocumentIngestionForm
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={loadDocuments}
+              />
+            )}
+          </main>
+        );
+      };
+
+      const App = () => {
+        const { page, setPage } = useAuth();
+        const toggleAuthView = useCallback(
+          (view) => {
+            setPage(view);
+          },
+          [setPage]
+        );
+
+        return (
+          <div className="flex flex-col min-h-screen bg-background">
+            <div className="flex-grow">
+              {page === "login" && (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  {/* FIX 3: Pass the direct setter function */}
+                  <LoginForm onToggleView={toggleAuthView} />
+                </div>
+              )}
+              {page === "register" && (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  {/* FIX 3: Pass the direct setter function */}
+                  <RegisterForm onToggleView={toggleAuthView} />
+                </div>
+              )}
+              {(page === "dashboard" || page === "docDetails") && <Dashboard />}
+            </div>
+          </div>
+        );
+      };
+
+      // Render the entire application using React 18 createRoot API
+      root.render(
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      );
+
+      // Initialize Lucide icons after rendering
+      document.addEventListener("DOMContentLoaded", () => {
+        if (typeof lucide !== "undefined") {
+          lucide.createIcons();
+        }
+      });
+    </script>
+  </body>
+</html>

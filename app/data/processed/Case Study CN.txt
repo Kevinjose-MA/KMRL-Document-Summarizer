@@ -1,0 +1,124 @@
+TITLE Sustainable Routing Protocols in Rural or Developing
+NAME Kevin Jose M A
+REG NO 720823106043
+BRANCH/ YEAR B.Tech (IT) / III year
+COURSE 22IT403 – Computer Networks
+1. Introduction
+Access to reliable and affordable communication has become a fundamental necessity in the 21st
+century. However, millions of people in rural and developing regions remain excluded from the
+digital revolution because traditional networking models fail to meet their needs. According to the
+International Telecommunication Union (ITU), nearly 2.6 billion people worldwide still lacked
+internet access in 2023, and the majority live in rural or remote communities. The challenge is not
+only about extending coverage but also about doing so in a sustainable manner—technically,
+economically, and environmentally.
+Sustainable routing protocols play a vital role in this process. They are designed to conserve
+energy, minimize costs, and maintain connectivity even under unpredictable conditions. Unlike
+urban areas where stable infrastructure exists, rural networks must often cope with intermittent
+electricity, poor backhaul connectivity, and harsh terrain. Routing protocols therefore need to be
+adaptive, resource-efficient, and resilient to failures.
+This case study explores the key challenges of rural connectivity, highlights routing strategies
+such as Delay Tolerant Networking (DTN), RPL, LEACH, and hybrid methods, and reviews
+successful real-world implementations. It also discusses design principles and future prospects for
+creating inclusive, long-lasting, and community-driven rural networks.
+2. Challenges in Rural Connectivity
+Rural and developing areas face a unique set of technical and social barriers that directly
+influence how routing protocols should be designed.
+• Geographical Barriers: Villages may be separated by mountains, forests, or rivers,
+which complicates the installation of conventional infrastructure.
+• Intermittent Power Supply: Many rural nodes rely on solar or battery systems. Routing
+must minimize power usage to prolong uptime.
+• Low Income Levels: High equipment costs or data charges are unsustainable.
+Affordable, low-maintenance solutions are critical.
+• Sparse Populations: Unlike urban centers, rural nodes are often spread far apart,
+creating long-distance links with weak signal strength.
+• Technical Literacy Gaps: Maintenance must be simple so that local communities, not
+only experts, can manage networks.
+• Policy and Regulatory Issues: In some regions, spectrum restrictions or lack of
+supportive policy slow down community-driven deployments.
+Together, these challenges demand routing solutions that are not only technically sound but also
+socially adaptable and economically viable.
+3. Sustainable Routing Approaches
+3.1 Delay Tolerant Networking (DTN)
+DTN is a leading solution in areas where continuous connectivity cannot be guaranteed. Using
+the “store-carry-forward” model, nodes such as buses, drones, or mobile phones temporarily store
+data and physically move it closer to its destination. In rural Ethiopia, for instance, healthcare
+workers use DTN-based systems to synchronize patient data when they travel to clinics with
+better connectivity. This ensures health records are updated despite patchy coverage.
+3.2 RPL (Routing Protocol for Low-Power and Lossy Networks)
+RPL is particularly suited for sensor-based rural applications. For example, in smart agriculture,
+RPL enables farmers to monitor soil moisture and weather conditions using low-power devices
+spread across fields. By reducing retransmissions and optimizing energy usage, RPL ensures that
+networks can function for years without frequent battery replacements.
+3.3 LEACH (Low Energy Adaptive Clustering Hierarchy)
+LEACH reduces energy drain by organizing nodes into clusters, where a cluster head manages
+communication. In rural environmental monitoring, this ensures that thousands of sensors can
+operate sustainably while relaying critical data on rainfall, soil health, or forest fire risks.
+LEACH’s rotation of cluster heads balances energy use across nodes, preventing early failures.
+3.4 Opportunistic and Hybrid Routing
+Opportunistic routing leverages every chance connection to forward data, useful in villages where
+connectivity fluctuates daily. Hybrid routing combines DTN and proactive routing, creating
+flexible systems. In practice, hybrid approaches have been deployed in disaster-struck regions of
+Nepal and Haiti, where normal infrastructure was destroyed.
+4. Real-World Case Studies
+4.1 AirJaldi Networks (India)
+AirJaldi provides affordable internet across rural India by setting up long-distance Wi-Fi links,
+solar-powered relay stations, and mesh networks. Routing protocols are optimized to account for
+frequent power outages and fluctuating demand. Communities are trained to maintain the systems
+themselves, reducing costs and increasing sustainability.
+4.2 Community Mesh Networks (Africa)
+In Kenya, South Africa, and Tanzania, local organizations build Wi-Fi mesh networks that link
+schools, health centers, and homes. Protocols such as BATMAN (Better Approach To Mobile
+Adhoc Networking) and OLSR (Optimized Link State Routing) ensure traffic is routed
+dynamically. These networks empower locals by giving them ownership, reducing reliance on
+expensive telecom operators.
+4.3 Guifi.net (Spain)
+Although Spain is not a developing country, Guifi.net is an important model for rural areas
+worldwide. It has grown into one of the largest community networks, showing that sustainable
+routing protocols can scale to thousands of nodes while remaining affordable and energy-
+efficient. Its governance model—where citizens co-own the infrastructure—offers lessons for
+other rural contexts.
+4.4 Delay-Tolerant Health Networks (Bangladesh)
+In remote Bangladeshi villages, DTN-based mobile health networks are used to transmit
+diagnostic data. Health workers carry devices that sync patient records once they enter network
+range. This reduces patient travel costs and ensures timely treatment.
+5. Design Principles and Sustainability Metrics
+When evaluating sustainable routing protocols, several principles stand out:
+• Energy Efficiency: Routing decisions must conserve power for solar- and battery-based
+nodes.
+• Scalability: Networks should expand easily as more villages join.
+• Affordability: Hardware and maintenance must stay within the reach of low-income
+communities.
+• Reliability: Routing must tolerate frequent failures and poor connectivity.
+• Inclusivity: Systems should be easy to use by non-experts and support local ownership.
+• Environmental Impact: Low-energy solutions and renewable-powered systems ensure
+long-term sustainability.
+Metrics such as average energy consumed per packet, packet delivery ratio, latency under
+disruption, and cost per user are commonly used to judge sustainability in practice.
+6. Conclusion and Future Outlook
+Sustainable routing protocols are not merely technical tools but enablers of social and economic
+transformation. They extend education, healthcare, and business opportunities to underserved
+communities while ensuring resilience against energy and infrastructure constraints.
+Looking forward, several trends promise to enhance rural connectivity:
+• IoT in Agriculture: Low-power networks (RPL, LoRaWAN) supporting smart irrigation
+and precision farming.
+• 5G and LoRa Hybrid Systems: Combining high-speed links with low-power rural
+networks for cost-effective coverage.
+• Satellite Integration (e.g., Starlink): Reducing backhaul gaps in regions without fiber or
+cellular.
+• Edge AI for Routing Decisions: Allowing local nodes to make smarter, adaptive routing
+choices in real time.
+Ultimately, sustainable routing protocols are central to bridging the digital divide. They show that
+inclusive digital societies are possible when technology adapts to the needs of communities,
+rather than forcing communities to adapt to technology.
+References
+1. ITU. “Measuring Digital Development: Facts and Figures 2023.” International
+Telecommunication Union.
+2. Pentikousis, K., et al. Routing for Rural Wireless Mesh Networks. IEEE Communications
+Magazine, 2020.
+3. AirJaldi Networks. https://airjaldi.com
+4. Rey-Moreno, C. “Community Networks in Africa.” Internet Society Report, 2021.
+5. Guifi.net Foundation. https://guifi.net
+6. Fall, K. “A Delay-Tolerant Network Architecture for Challenged Internets.” ACM
+SIGCOMM, 2003.
+7. Singh, R., & Sharma, P. “Energy-Efficient Routing in Rural Wireless Sensor Networks.”
+IJCN, 2022.

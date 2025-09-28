@@ -1,0 +1,58 @@
+## Introduction
+This section provides the contact information for **Arunkumar L**:
+
+*   **Name:** Arunkumar L
+*   **Address:** Valikandapuram, Perambalur, Tamil Nadu
+*   **Phone:** +91 6379440923
+*   **Email:** arun47akkumar@gmail.com
+
+## P RO F IL E
+Here's a summary of the provided content:
+
+This document describes an **aspiring cybersecurity professional** with a foundational skill set and clear career ambitions.
+
+Key highlights include:
+*   **Programming Languages:** Proficient in C, C++, and Python.
+*   **Cybersecurity Knowledge:** Beginner-level understanding of ethical hacking principles.
+*   **Operating Systems Experience:** Familiar with commands in Windows, Kali Linux, and Parrot OS.
+*   **Personal Attributes:** Described as disciplined, positive, and goal-driven.
+*   **Career Aspiration:** Aims to achieve the role of Chief Information Security Officer (CISO).
+
+## P RO JE CT
+This section outlines key technical projects, demonstrating proficiency in Python, networking, and security tools.
+
+*   **PENTURION – Advanced Automated Web Pentesting Framework (In Progress):** Developing an automated web penetration testing framework utilizing Python, Bash, Linux, and various web security tools.
+*   **Interactive Weather App (with Dynamic UI & Music):** Created an interactive weather application featuring a dynamic user interface and music integration, built with Python, KivyMD, and the OpenWeather API.
+*   **Advanced Reverse Shell:** Implemented an advanced reverse shell, showcasing expertise in Python, networking concepts, and cross-platform compatibility (Windows/Linux).
+
+## E DUC A T IO N
+This section outlines the candidate's academic background, highlighting their current pursuit of a B.Tech degree and their prior secondary education.
+
+**Education Summary:**
+
+*   **B.Tech – Information Technology (Pursuing)**
+    *   Hindusthan Institute of Technology, Coimbatore
+*   **12th Grade – Computer Science**
+    *   Roever School of Excellence, Perambalur
+
+This is followed by a "SKILLS +" section, indicating a forthcoming list of skills.
+
+## IN TE RE S T S
+This section outlines a candidate's comprehensive technical skill set and professional interests, primarily focused on cybersecurity and software development.
+
+**Key Skills & Expertise:**
+
+*   **Programming Languages:** Proficient in Python, C++, C, Java, and JavaScript.
+*   **Cybersecurity:** Expertise in Ethical Hacking and Web Penetration Testing.
+*   **Operating Systems:** Experienced with Kali Linux, Parrot OS, and Windows.
+*   **Networking:** Strong understanding of TCP/IP, Network Scanning, and Protocol Analysis.
+*   **Frameworks:** Skilled in Kivy, KivyMD, and Flask.
+*   **Tools & Libraries:** Proficient with Wireshark, Nmap, Git, and Metasploit.
+
+**Professional Interests & Drive:**
+
+The candidate is passionate about ethical hacking and cybersecurity, with a particular focus on penetration testing and network security. They enjoy developing secure applications, contributing to open-source projects, and staying current with emerging technologies. A strong commitment to continuous learning is evident, with current focus areas including system design, Python, and app development.
+
+## C ONNE C T WI TH 
+M E
+

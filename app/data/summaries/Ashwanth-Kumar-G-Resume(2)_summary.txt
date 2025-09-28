@@ -1,0 +1,66 @@
+## Introduction
+
+
+## EDUCATION
+**Education**
+
+*   **Bachelor of Technology in Information Technology**
+    *   Coimbatore Hindusthan Institute of Technology, Coimbatore
+    *   Expected Graduation: 2027
+    *   CGPA: 8.3
+
+## TECHNICAL SKILLS
+This document outlines a comprehensive technical skillset, primarily focused on full-stack development.
+
+**Key Skills and Technologies:**
+
+*   **Full-Stack Development (MERN):** Proficient in the MERN stack, encompassing both frontend and backend technologies.
+*   **Frontend:**
+    *   HTML5, CSS3, JavaScript
+*   **Backend:**
+    *   Node.js, Express.js
+*   **Databases:**
+    *   PostgreSQL, MongoDB
+*   **Programming Languages:**
+    *   Java, Python
+*   **Core Computer Science:**
+    *   Strong understanding of Data Structures & Algorithms.
+*   **Tools & Platforms:**
+    *   VS Code, Git, GitHub
+
+## CERTIFICATIONS
+This section outlines core technical competencies, focusing on foundational programming concepts and modern web development:
+
+*   **Data Structures & Algorithms (DSA):** Proficiency in fundamental DSA concepts, implemented using both **Python** and **Java**.
+*   **Full Stack Web Development (MERN Stack):** Expertise in building full-stack applications, encompassing:
+    *   **Frontend:** HTML, CSS, JavaScript
+    *   **Backend:** Node.js
+    *   **Database:** PostgreSQL
+*   **Java Programming Basics:** Foundational knowledge in Java programming.
+
+## PROJECTS
+This section details a portfolio of diverse projects, demonstrating proficiency in various web development and programming technologies.
+
+**Key Projects & Technologies:**
+
+*   **Portfolio Website:** Developed a personal online portfolio utilizing HTML, CSS, and JavaScript to showcase projects, skills, and experience.
+*   **Simon Game:** Engineered an interactive memory game using JavaScript, emphasizing DOM manipulation and event handling.
+*   **Dice Game:** Created a web-based dice game with JavaScript, integrating animations and game logic for user engagement.
+*   **Library Management System:** Built a Java-based system for managing book inventories and student records, including features for book issuance, returns, and fine calculations.
+*   **Love Animation Web Project:** Designed engaging web animations using HTML, CSS, and Mo.js to enhance user experience.
+*   **MERN Stack Project:** Developed a full-stack web application leveraging MongoDB, Express.js, React.js, and Node.js, incorporating user authentication and comprehensive CRUD (Create, Read, Update, Delete) operations.
+
+## STRENGTHS
+This section highlights key professional attributes:
+
+*   **Quick Learner & Adaptable:** Demonstrates the ability to rapidly acquire new knowledge and adjust to changing environments.
+*   **Analytical & Problem-Solving Skills:** Possesses strong capabilities in analyzing complex situations and developing effective solutions.
+*   **Team Collaboration & Communication:** Excels in working with others and conveying information clearly and effectively.
+
+## PERSONAL DETAILS
+This section outlines the individual's linguistic abilities and personal interests.
+
+**Key Details:**
+
+*   **Languages:** Proficient in English, Tamil, and Telugu.
+*   **Hobbies:** Engages in Coding, Animation, Problem Solving, and Entertainment.

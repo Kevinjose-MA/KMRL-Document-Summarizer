@@ -1,0 +1,53 @@
+Ashwanth Kumar G
+Information Technology Student | Fresher
+Coimbatore
+EDUCATION
+2027 Bachelor of Technology in Information Technology
+Coimbatore Hindusthan Institute of Technology, Coimbatore
+CGPA: 8.3
+TECHNICAL SKILLS
+Frontend Backend Database
+HTML5 Node.js PostgreSQL
+• • •
+CSS3 Express.js MongoDB
+• • •
+JavaScript
+•
+Programming Languages Tools & Platforms
+Full-Stack Development (MERN) Java VS Code
+• •
+Python Git
+• •
+Data Structures & Algorithms GitHub
+•
+CERTIFICATIONS
+Data Structures & Algorithms Full Stack Web Development Java Programming Basics
+(Python & Java) (MERN: HTML, CSS, JavaScript,
+Node.js, PostgreSQL)
+PROJECTS
+Portfolio Website
+Developed a personal portfolio showcasing projects, skills, and experience using HTML, CSS, and JavaScript.
+Simon Game
+Created an interactive memory game using JavaScript, focusing on DOM manipulation and event handling.
+Dice Game
+Built a web-based dice game using JavaScript, incorporating animations and game logic for user interaction.
+Library Management System
+Developed a Java-based system to manage book inventories and student records with features for issue, return,
+and fine calculation.
+Love Animation Web Project
+Designed engaging web animations using HTML, CSS, and Mo.js to enhance user experience.
+MERN Stack Project
+Developed a full-stack web application using MongoDB, Express.js, React.js, and Node.js, implementing user
+authentication and CRUD operations.
+STRENGTHS
+Quick learner and highly adaptable
+•
+Strong analytical and problem-solving skills
+•
+Effective team collaborator and communicator
+•
+PERSONAL DETAILS
+Languages Known: English, Tamil, Telugu
+•
+Hobbies: Coding, Animation, Problem Solving, Entertainment
+•

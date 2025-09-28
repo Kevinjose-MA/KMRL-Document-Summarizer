@@ -1,0 +1,34 @@
+## Introduction
+
+
+## KOWSHIKKA S B
+
+
+## CONTACT PROFILE
+⚠️ Summary failed after retries.
+
+## SKILLS ADDITIONAL
+This section outlines an individual's programming projects, technical skills, certifications, and personal interests.
+
+**Key Highlights:**
+
+*   **Programming Projects:**
+    *   **Python:** Developed a Front End for a Parking Slot Booking Application.
+    *   **Web Development (HTML, CSS, JavaScript):** Created an E-Commerce platform.
+    *   **UI/UX Design:** Designed a Fashioning E-Commerce Website.
+    *   **Java:** Completed an ATM Automation System project at Emglitz Private Solutions.
+*   **Technical Skills:**
+    *   Python Programming
+    *   Java Programming
+    *   Excel
+    *   UI/UX Design
+    *   Web Development
+    *   Digital Marketing
+*   **Certifications:**
+    *   Udemy certified Python Programmer.
+    *   Attended a 2-day UI/UX Design Workshop at RTech Private
+
+## LANGUAGES INTERNSHIPS
+**Summary of Internship Experience:**
+
+Completed a 1-month paid internship in Java Programming at Emglitz Technologies.
