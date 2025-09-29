@@ -103,12 +103,21 @@ def summarize_section(section_text: str, retries: int = 3, delay: int = 5) -> st
         return ""
     
     prompt = f"""
-You are an expert summarizer. Summarize the following document or section clearly and professionally:
-- Highlight key points, actions, responsibilities, deadlines, and important details.
-- Include concise bullet points where appropriate.
-- Preserve context and meaning; do not invent facts.
-- Adapt style to the type of document (resume, HR, technical, or general business).
-- Keep the summary readable and structured.
+You are an expert summarizer with domain knowledge across HR, legal, technical, and business documents. 
+Your task is to generate a clear, professional, and structured summary of the given document or section. 
+
+Guidelines:
+- Identify and highlight the most important information: key points, responsibilities, actions, deadlines, 
+  decisions, or achievements.
+- Use concise bullet points where appropriate, but also provide short cohesive paragraphs for context.
+- Adapt writing style based on the content type:
+  • Resume → emphasize skills, experience, and accomplishments. 
+  • HR/Policy → highlight policies, roles, procedures, compliance details, and responsibilities.
+  • Technical → capture processes, methods, results, limitations, and recommendations.
+  • General/Business → focus on goals, outcomes, benefits, and next steps.
+- Do not invent or assume facts that are not explicitly stated in the text.
+- Preserve the logical flow of the original content but remove redundancy and filler.
+- Keep the summary professional, precise, and easy to read for stakeholders.
 
 Document/Section content:
 {section_text}
@@ -118,9 +127,9 @@ Document/Section content:
             response = gemini_model.generate_content(
                 contents=[{"role": "user", "parts": [prompt]}],
                 generation_config={
-                    "temperature": 0.3,
-                    "top_p": 0.8,
-                    "max_output_tokens": 500
+                    "temperature": 0.2,
+                    "top_p": 0.7,
+                    "max_output_tokens": 800
                 }
             )
             summary = ""
@@ -130,13 +139,13 @@ Document/Section content:
                     summary = candidate.content.parts[0].text.strip()
             if summary:
                 return summary
-            print(f"⚠️ LLM returned empty summary. Retrying {attempt+1}/{retries}...")
+            print(f"⚠ LLM returned empty summary. Retrying {attempt+1}/{retries}...")
         except Exception as e:
             if "quota" in str(e).lower() and switch_to_next_key():
                 continue
             print(f"❌ Error in summarize_section: {e}")
         time.sleep(delay)
-    return "⚠️ Summary failed after retries."
+    return "⚠ Summary failed after retries."
 
 
 # =========================
@@ -147,32 +156,51 @@ def summarize_text_by_sections(text: str) -> str:
     section_summaries = []
     for heading, content in sections:
         print(f"📝 Summarizing section: {heading}")
-        summary = summarize_section(content)
+        summary = summarize_section(content)  
         section_summaries.append(f"## {heading}\n{summary}\n")
     
     merged_summary = "\n".join(section_summaries)
 
     final_prompt = f"""
-You are an expert summarizer. Using the section-wise summaries provided below,
-create a professional, concise, and well-structured final summary in approximately 200 words.
+You are an expert summarizer with strong domain knowledge across HR, legal, technical, 
+business, and professional documents. Your task is to generate a cohesive, professional, 
+and highly detailed final summary of the entire document based on the section-wise summaries provided. 
 
-Guidelines:
-- Read all section summaries carefully.
-- Preserve the logical flow and order of sections.
-- Include key points, actions, responsibilities, deadlines, and incentives.
-- Highlight important inclusions, exclusions, claim limits, benefits, and preventive care.
-- Merge redundant points and remove trivial information for clarity.
-- Maintain a precise, professional, and readable style suitable for an official report.
-- Avoid introducing incorrect facts; clearly indicate assumptions only if necessary.
-- Produce a cohesive summary that captures the essence of the entire document, not just bullet points.
+⚠ Important Handling:
+- If any section contains an error message such as "⚠ Summary failed after retries." 
+  or incomplete text, ignore that section completely in the final summary. 
+- Only use valid and meaningful content.
 
-Section-wise summaries:
+Word Count Requirements:
+- HR-related documents → Aim for ~4000 words.
+- Resume-related documents → Aim for ~2000 words.
+- Business or general corporate documents → Aim for ~5000 words.
+- If document type is unclear → Default to ~200 words.
+
+Guidelines for the Final Summary:
+- Carefully read all section summaries and preserve their logical order and flow.
+- Consolidate overlapping information and eliminate trivial or repetitive details.
+- Highlight essential elements such as key points, responsibilities, actions, 
+  deadlines, incentives, inclusions, exclusions, claim limits, benefits, 
+  preventive care, and strategic insights (if relevant).
+- Structure the output in a professional and readable format:
+  • Use concise bullet points for actionable items, responsibilities, or conditions.
+  • Use short, well-structured paragraphs for context, background, and takeaways.
+- Maintain a professional, precise, and stakeholder-friendly tone, 
+  as if writing an official report or executive-level summary.
+- Adapt language naturally to the type of document (HR policy, resume, 
+  business strategy, technical manual, or general policy).
+- Do not fabricate or assume facts beyond the provided content; 
+  if assumptions must be noted, explicitly label them as "Assumptions".
+- Ensure the result is cohesive, comprehensive, and aligned with the required word count.
+
+Section-wise summaries (cleaned input):
 {merged_summary}
 """
     try:
         final_response = gemini_model.generate_content(
             contents=[{"role": "user", "parts": [final_prompt]}],
-            generation_config={"temperature":0.3, "top_p":0.8, "max_output_tokens":800}
+            generation_config={"temperature":0.3, "top_p":0.8, "max_output_tokens":800 ,"candidate_count": 1}
         )
         final_summary = ""
         if hasattr(final_response, "candidates") and final_response.candidates:
